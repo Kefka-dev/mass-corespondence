@@ -36,7 +36,7 @@ final class ContactTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Contact::query();
+        return Contact::query()->where('user_id', auth()->id());
     }
 
     public function relationSearch(): array
