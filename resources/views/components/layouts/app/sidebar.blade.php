@@ -129,5 +129,9 @@
         {{ $slot }}
 
         @fluxScripts
+        {{-- For laravel quil editor --}}
+        <!-- Include the Quill library -->
+{{--        <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>--}}
+        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     </body>
 </html>
