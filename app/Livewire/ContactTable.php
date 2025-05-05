@@ -20,6 +20,7 @@ final class ContactTable extends PowerGridComponent
     protected $listeners = [
         'contact-added' => '$refresh',
         'contact-deleted' => '$refresh',
+        'contact-updated' => '$refresh',
     ];
 
     public function setUp(): array
@@ -108,11 +109,11 @@ final class ContactTable extends PowerGridComponent
     public function actions(Contact $row): array
     {
         return [
-//            Button::add('edit')
-//                ->slot('Edit: '.$row->id)
-//                ->id()
-//                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-//                ->dispatch('edit', ['rowId' => $row->id]),
+            Button::add('edit')
+                ->slot('Edit')
+                ->id()
+                ->class('relative items-center font-medium justify-center gap-2 whitespace-nowrap disabled:opacity-75 dark:disabled:opacity-75 disabled:cursor-default disabled:pointer-events-none h-10 text-sm rounded-lg px-4 inline-flex bg-blue-500 hover:bg-blue-600 text-white')
+                ->dispatch('open-edit-modal', ['contactId' => $row->id]),
             Button::add('delete')
                 ->slot('Delete')
                 ->id()
