@@ -19,6 +19,7 @@ final class ContactTable extends PowerGridComponent
 
     protected $listeners = [
         'contact-added' => '$refresh',
+        'contact-deleted' => '$refresh',
     ];
 
     public function setUp(): array
