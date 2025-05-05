@@ -7,8 +7,8 @@
     const quill = new Quill('#' + @js($quillId), {
         modules: {
             toolbar: [
-                [{ header: [1, 2, false] }],
-                ['bold', 'italic', 'underline'],
+                [{ header: [1, 2, false] }, { 'size': [] }],
+                ['bold', 'italic', 'underline', ],
                 ['image', 'code-block'],
                 [{ 'color': [] },{ 'background': [] }],
             ],
