@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Tonysm\RichTextLaravel\Models\Traits\HasRichText;
 
 class Template extends Model
 {
-    //
     protected $fillable = [
         'name',
-        'template',
         'user_id',
+        'template',
     ];
     public function user(): BelongsTo
     {

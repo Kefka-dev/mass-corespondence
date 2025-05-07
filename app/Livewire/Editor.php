@@ -10,20 +10,17 @@ class Editor extends Component
 {
     public $content = '';
     public $showNameModal = false;
-    public $showLoadModal = false;
     public $showConfirmModal = false;
     public $templateName = '';
     public $existingTemplateId = null;
-    public $templates= [];
+
+    protected $listeners = [
+        'load-template' => 'loadTemplate',
+    ];
+
     public function openNameModal()
     {
         $this->showNameModal = true;
-    }
-    public function openLoadModal()
-    {
-        $user = Auth::user();
-        $this->templates = Template::where('user_id', $user->id)->get();
-        $this->showLoadModal = true;
     }
 
     public function checkTemplate()
@@ -51,6 +48,7 @@ class Editor extends Component
         $template->template = $this->content;
         $template->save();
 
+        $this->content = $template->template ?? '';
         $this->showConfirmModal = false;
         $this->showNameModal = false;
         session()->flash('message', 'Template overwritten successfully!');
@@ -59,14 +57,25 @@ class Editor extends Component
     public function createTemplate()
     {
         $user = Auth::user();
-        Template::create([
+        $template = Template::create([
             'user_id' => $user->id,
             'name' => $this->templateName,
             'template' => $this->content,
         ]);
 
+        $this->content = $template->template ?? '';
         $this->showNameModal = false;
+        $this->dispatch('template-saved');
         session()->flash('message', 'Template saved successfully!');
+    }
+
+    public function loadTemplate($templateId)
+    {
+        $template = Template::find($templateId);
+        if ($template && $template->user_id === auth()->id()) {
+            $this->content = $template->template ?? '';
+            session()->flash('message', 'Template loaded successfully!');
+        }
     }
 
     public function render()
