@@ -145,7 +145,7 @@ class Editor extends Component
             if ($contact->use_vykanie && $contact->oslovenie) {
                 $personalizedContent = str_replace('{oslovenie}', $contact->oslovenie, $personalizedContent);
             } elseif (!$contact->use_vykanie && $contact->name) {
-                $personalizedContent = str_replace('{oslovenie}', $contact->name, $personalizedContent);
+                $personalizedContent = str_replace('{oslovenie}', '', $personalizedContent);
             }
 
             // Replace {meno} with the contact's name
