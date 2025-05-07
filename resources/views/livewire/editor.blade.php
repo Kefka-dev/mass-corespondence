@@ -12,7 +12,7 @@
     </div>
     <flux:button.group class="mt-4">
         <flux:button wire:click="openNameModal">Save Template</flux:button>
-        <flux:button wire:click="sendEmails" disabled="{{ empty($selectedContactIds) }}">Send Emails</flux:button>
+        <flux:button wire:click="sendEmails" >Send Emails</flux:button>
     </flux:button.group>
 
     <flux:modal name="name-modal" wire:model="showNameModal">
