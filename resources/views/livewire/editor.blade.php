@@ -1,4 +1,5 @@
 <div>
+    <flux:input wire:model.live="subject" placeholder="Enter email subject..." class="mb-4" />
     <flux:textarea wire:model.live="content" placeholder="Enter your template content..." rows="10" />
     <div class="mt-4">
         <h3>Select Contacts</h3>
@@ -11,7 +12,7 @@
     </div>
     <flux:button.group class="mt-4">
         <flux:button wire:click="openNameModal">Save Template</flux:button>
-        <flux:button wire:click="sendEmails">Send Emails</flux:button>
+        <flux:button wire:click="sendEmails" disabled="{{ empty($selectedContactIds) }}">Send Emails</flux:button>
     </flux:button.group>
 
     <flux:modal name="name-modal" wire:model="showNameModal">

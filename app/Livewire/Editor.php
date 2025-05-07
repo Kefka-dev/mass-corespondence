@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Template;
 use App\Models\Contact;
+use App\Models\EmailLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 class Editor extends Component
 {
     public $content = '';
+    public $subject = ''; // Default subject
     public $showNameModal = false;
     public $showConfirmModal = false;
     public $templateName = '';
@@ -48,11 +50,9 @@ class Editor extends Component
             'vykanie' => 'Vami',
         ],
         '{Vy/ty}' => [
-            'tykanie' => 'tebou',
-            'vykanie' => 'Vami',
+            'tykanie' => 'ty',
+            'vykanie' => 'Vy',
         ],
-
-        // Add more replacements as needed
     ];
 
     public function openNameModal()
@@ -83,9 +83,11 @@ class Editor extends Component
     {
         $template = Template::find($this->existingTemplateId);
         $template->template = $this->content;
+        $template->subject = $this->subject; // Save the subject
         $template->save();
 
         $this->content = $template->template ?? '';
+        $this->subject = $template->subject ?? 'Your Template Email'; // Load the saved subject
         $this->showConfirmModal = false;
         $this->showNameModal = false;
         session()->flash('message', 'Template overwritten successfully!');
@@ -98,9 +100,11 @@ class Editor extends Component
             'user_id' => $user->id,
             'name' => $this->templateName,
             'template' => $this->content,
+            'subject' => $this->subject, // Save the subject
         ]);
 
         $this->content = $template->template ?? '';
+        $this->subject = $template->subject ?? 'Your Template Email'; // Load the saved subject
         $this->showNameModal = false;
         session()->flash('message', 'Template saved successfully!');
     }
@@ -110,6 +114,7 @@ class Editor extends Component
         $template = Template::find($templateId);
         if ($template && $template->user_id === auth()->id()) {
             $this->content = $template->template ?? '';
+            $this->subject = $template->subject ?? 'Your Template Email'; // Load the saved subject
             session()->flash('message', 'Template loaded successfully!');
         }
     }
@@ -126,6 +131,11 @@ class Editor extends Component
             return;
         }
 
+        if (empty($this->subject)) {
+            session()->flash('error', 'Email subject is empty!');
+            return;
+        }
+
         foreach ($contacts as $contact) {
             // Start with the original template content
             $personalizedContent = $this->content;
@@ -134,8 +144,12 @@ class Editor extends Component
             if ($contact->use_vykanie && $contact->oslovenie) {
                 $personalizedContent = str_replace('{oslovenie}', $contact->oslovenie, $personalizedContent);
             } elseif (!$contact->use_vykanie && $contact->name) {
-                // Optional: Replace {oslovenie} with name for informal tone
-                $personalizedContent = str_replace('{oslovenie}', '', $personalizedContent);
+                $personalizedContent = str_replace('{oslovenie}', $contact->name, $personalizedContent);
+            }
+
+            // Replace {meno} with the contact's name
+            if ($contact->name) {
+                $personalizedContent = str_replace('{meno}', $contact->name, $personalizedContent);
             }
 
             // Replace tykanie/vykanie keywords based on use_vykanie
@@ -143,19 +157,25 @@ class Editor extends Component
             foreach ($this->tykanieVykanieReplacements as $placeholder => $replacements) {
                 $personalizedContent = str_replace($placeholder, $replacements[$tone], $personalizedContent);
             }
-            // Replace {meno} with the contact's name
-            if ($contact->name) {
-                $personalizedContent = str_replace('{meno}', $contact->name, $personalizedContent);
-            }
 
-            // Send the email with the personalized content
+            // Send the email with the personalized content and custom subject
             try {
                 Mail::raw($personalizedContent, function ($message) use ($contact) {
                     $message->to($contact->email, $contact->name)
-                        ->subject('Your Template Email')
+                        ->subject($this->subject)
                         ->from(config('mail.from.address'), config('mail.from.name'));
                 });
-                Log::info('Email sent to: ' . $contact->email . ' with content: ' . $personalizedContent);
+
+                // Log the email in the email_logs table
+                EmailLog::create([
+                    'user_id' => $user->id,
+                    'contact_id' => $contact->id,
+                    'subject' => $this->subject,
+                    'body' => $personalizedContent,
+                    'sent_at' => now(),
+                ]);
+
+                Log::info('Email sent to: ' . $contact->email . ' with subject: ' . $this->subject . ' and content: ' . $personalizedContent);
             } catch (\Exception $e) {
                 Log::error('Failed to send email to ' . $contact->email . ': ' . $e->getMessage());
                 session()->flash('error', 'Failed to send email to ' . $contact->email);
