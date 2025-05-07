@@ -22,6 +22,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/contacts', function () {
         return view('contactss');
     })->name('contactss');
+    Route::get('/history', function () {
+        return view('history');
+    })->name('history');
+
+
 });
 
 require __DIR__.'/auth.php';
