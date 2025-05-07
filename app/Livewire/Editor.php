@@ -106,6 +106,7 @@ class Editor extends Component
         $this->content = $template->template ?? '';
         $this->subject = $template->subject ?? 'Your Template Email'; // Load the saved subject
         $this->showNameModal = false;
+        $this->dispatch('template-saved'); // Udalosť pre refresh tabuľky
         session()->flash('message', 'Template saved successfully!');
     }
 
