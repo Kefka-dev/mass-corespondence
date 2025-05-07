@@ -12,6 +12,7 @@ class Template extends Model
         'name',
         'user_id',
         'template',
+        'subject',
     ];
     public function user(): BelongsTo
     {
