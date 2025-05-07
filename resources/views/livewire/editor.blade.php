@@ -1,7 +1,17 @@
 <div>
     <flux:textarea wire:model.live="content" placeholder="Enter your template content..." rows="10" />
-    <flux:button.group>
+    <div class="mt-4">
+        <h3>Select Contacts</h3>
+        @foreach ($contacts as $contact)
+            <label class="flex items-center">
+                <input type="checkbox" wire:model.live="selectedContactIds" value="{{ $contact->id }}">
+                {{ $contact->name }} ({{ $contact->email }})
+            </label>
+        @endforeach
+    </div>
+    <flux:button.group class="mt-4">
         <flux:button wire:click="openNameModal">Save Template</flux:button>
+        <flux:button wire:click="sendEmails">Send Emails</flux:button>
     </flux:button.group>
 
     <flux:modal name="name-modal" wire:model="showNameModal">
